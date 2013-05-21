@@ -246,7 +246,7 @@ module DataMapper
   # @yield [Proc] (optional) block to execute within the context of the named repository
   #
   # @api public
-  def self.repository(name = nil)
+  def self.repository(name = nil, options = {})
     context = Repository.context
 
     current_repository = if name
@@ -260,7 +260,7 @@ module DataMapper
     current_repository ||= Repository.new(name)
 
     if block_given?
-      current_repository.scope { |*block_args| yield(*block_args) }
+      current_repository.scope(options) { |*block_args| yield(*block_args) }
     else
       current_repository
     end
