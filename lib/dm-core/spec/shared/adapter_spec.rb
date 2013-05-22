@@ -40,6 +40,9 @@ share_examples_for 'An Adapter' do
     if @repository.respond_to?(:auto_migrate!)
       Heffalump.auto_migrate!
     end
+
+    @good_options = {:headers => {:foo => 'bar'}}
+    @bad_options = {:blowup => true}
   end
 
   if adapter_supports?(:create)
@@ -59,6 +62,22 @@ share_examples_for 'An Adapter' do
     end
   else
     it 'needs to support #create'
+  end
+
+  if adapter_supports?(:create_with_options)
+    describe '#create_with_options' do
+      it 'should not raise any errors if options are passed' do
+        @repository.scope(@good_options) do
+          lambda { Heffalump.create(:color => 'peach') }.should_not raise_error
+        end
+      end
+
+      it 'should raise an error if bad options are passed (confirming that options are passed to the adapter intact!)' do
+        @repository.scope(@bad_options) do
+          lambda { Heffalump.create(:color => 'peach') }.should raise_error
+        end
+      end
+    end
   end
 
   if adapter_supports?(:read)
@@ -81,6 +100,42 @@ share_examples_for 'An Adapter' do
     end
   else
     it 'needs to support #read'
+  end
+
+  if adapter_supports?(:read_with_options)
+    describe '#read_with_options' do
+      before :all do
+        @heffalump = Heffalump.create(:color => 'brownish hue')
+      end
+
+      it 'should return the proper query results if options are passed on an "all"' do
+        heffalumps = nil
+        @repository.scope(@good_options) do
+          heffalumps = Heffalump.all
+        end
+        heffalumps.should_not be_empty
+        heffalumps.first.id.should eql(@heffalump.id)
+      end
+
+      it 'should return the proper query results if options are passed on a "get"' do
+        heffalump = nil
+        @repository.scope(@good_options) do
+          heffalump = Heffalump.get(@heffalump.id)
+        end
+        heffalump.should_not be_nil
+        heffalump.id.should eql(@heffalump.id)
+      end
+
+      it 'should throw an error if bad options are passed on a get' do
+        @repository.scope(@bad_options) do
+          begin
+            heffalump = Heffalump.all
+          rescue Exception => e
+            e.message.should == "Bad options"
+          end
+        end
+      end
+    end
   end
 
   if adapter_supports?(:update)
@@ -120,6 +175,30 @@ share_examples_for 'An Adapter' do
     it 'needs to support #update'
   end
 
+  if adapter_supports?(:update_with_options)
+    describe '#update_with_options' do
+      before do
+        @heffalump = Heffalump.create(:color => 'indigo')
+      end
+      it 'should not raise any errors if options are passed' do
+        @repository.scope(@good_options) do
+          @heffalump.color = 'violet'
+          lambda { @heffalump.save }.should_not raise_error
+        end
+      end
+      it 'should raise an error if "bad" options are passed (confirming that options are passed to the adapter intact!)' do
+        @repository.scope(@bad_options) do
+          @heffalump.color = 'violet'
+          begin
+            @heffalump.save
+          rescue Exception => e
+            e.message.should == "Bad options"
+          end
+        end
+      end
+    end
+  end
+
   if adapter_supports?(:delete)
     describe '#delete' do
       before do
@@ -142,7 +221,29 @@ share_examples_for 'An Adapter' do
     it 'needs to support #delete'
   end
 
-  if adapter_supports?(:read, :create)
+  if adapter_supports?(:delete_with_options)
+    describe '#delete_with_options' do
+      before do
+        @heffalump = Heffalump.create(:color => 'navy blue')
+      end
+      it 'should not raise any errors if options are passed' do
+        @repository.scope(@good_options) do
+          lambda { @heffalump.destroy }.should_not raise_error
+        end
+      end
+      it 'should raise an error if "bad" options are passed (confirming that options are passed to the adapter intact!)' do
+        @repository.scope(@bad_options) do
+          begin
+            @heffalump.destroy
+          rescue Exception => e
+            e.message.should == "Bad options"
+          end
+        end
+      end
+    end
+  end
+
+  if adapter_supports?(:read__, :create)
     describe 'query matching' do
       before :all do
         @red  = Heffalump.create(:color => 'red')

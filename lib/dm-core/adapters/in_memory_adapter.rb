@@ -27,6 +27,11 @@ module DataMapper
         end
       end
 
+      def create_with_options(resources, options)
+        raise "Bad options" if options == {:blowup => true}  # used to confirm that the options are passed! 
+        create(resources) 
+      end
+
       # Looks up one record or a collection of records from the data-store:
       # "SELECT" in SQL.
       #
@@ -40,6 +45,11 @@ module DataMapper
       # @api semipublic
       def read(query)
         query.filter_records(records_for(query.model).dup)
+      end
+
+      def read_with_options(query, options)
+        raise "Bad options" if options == {:blowup => true}  # used to confirm that the options are passed! 
+        read(query)
       end
 
       # Used by DataMapper to update the attributes on existing records in a
@@ -58,6 +68,11 @@ module DataMapper
         read(collection.query).each { |record| record.update(attributes) }.size
       end
 
+      def update_with_options(attributes, collection, options)
+        raise "Bad options" if options == {:blowup => true}  # used to confirm that the options are passed! 
+        update(attributes, collection)
+      end
+
       # Destroys all the records matching the given query. "DELETE" in SQL.
       #
       # @param [DataMapper::Collection] resources
@@ -72,6 +87,11 @@ module DataMapper
         records_to_delete = collection.query.filter_records(records.dup)
         records.replace(records - records_to_delete)
         records_to_delete.size
+      end
+
+      def delete_with_options(collection, options)
+        raise "Bad options" if options == {:blowup => true}  # used to confirm that the options are passed! 
+        delete(collection)
       end
 
       # TODO consider proper automigrate functionality

@@ -112,17 +112,19 @@ module DataMapper
       self.scoped_options = options
 
       context << self
-
       begin
         yield self
       ensure
         context.pop
-        self.scoped_options = nil
       end
     end
 
     def has_scoped_options?
       !scoped_options.nil? && !scoped_options.empty?
+    end
+
+    def clear_scoped_options
+      self.scoped_options = nil
     end
 
     # Create a Query or subclass instance for this repository.
@@ -151,10 +153,14 @@ module DataMapper
     #
     # @api semipublic
     def create(resources)
-      if adapter.respond_to?(:create_with_options) && has_scoped_options?
-        adapter.create_with_options(resources, self.scoped_options)
-      else
-        adapter.create(resources)
+      begin
+        if adapter.respond_to?(:create_with_options) && has_scoped_options?
+          adapter.create_with_options(resources, self.scoped_options)
+        else
+          adapter.create(resources)
+        end
+      ensure
+        clear_scoped_options
       end
     end
 
@@ -170,13 +176,17 @@ module DataMapper
     #
     # @api semipublic
     def read(query)
-      return [] unless query.valid?
-      results = if adapter.respond_to?(:read_with_options) && has_scoped_options?
-        adapter.read_with_options(query, self.scoped_options)
-      else
-        adapter.read(query)
+      begin
+        return [] unless query.valid?
+        results = if adapter.respond_to?(:read_with_options) && has_scoped_options?
+          adapter.read_with_options(query, self.scoped_options)
+        else
+          adapter.read(query)
+        end
+        query.model.load(results, query)
+      ensure
+        clear_scoped_options
       end
-      query.model.load(results, query)
     end
 
     # Update the attributes of one or more resource instances
@@ -193,11 +203,15 @@ module DataMapper
     #
     # @api semipublic
     def update(attributes, collection)
-      return 0 unless collection.query.valid? && attributes.any?
-      if adapter.respond_to?(:update_with_options) && has_scoped_options?
-        adapter.adapter.update_with_options(attributes, collection, self.scoped_options)
-      else
-        adapter.update(attributes, collection)
+      begin
+        return 0 unless collection.query.valid? && attributes.any?
+        if adapter.respond_to?(:update_with_options) && has_scoped_options?
+          adapter.adapter.update_with_options(attributes, collection, self.scoped_options)
+        else
+          adapter.update(attributes, collection)
+        end
+      ensure
+        clear_scoped_options
       end
     end
 
@@ -213,11 +227,15 @@ module DataMapper
     #
     # @api semipublic
     def delete(collection)
-      return 0 unless collection.query.valid?
-      if adapter.respond_to?(:delete_with_options) && has_scoped_options?
-        adapter.adapter.delete_with_options(collection, self.scoped_options)
-      else
-        adapter.delete(collection)
+      begin
+        return 0 unless collection.query.valid?
+        if adapter.respond_to?(:delete_with_options) && has_scoped_options?
+          adapter.adapter.delete_with_options(collection, self.scoped_options)
+        else
+          adapter.delete(collection)
+        end
+      ensure
+        clear_scoped_options
       end
     end
 
