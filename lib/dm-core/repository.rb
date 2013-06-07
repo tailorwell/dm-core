@@ -124,6 +124,7 @@ module DataMapper
     end
 
     def clear_scoped_options
+      puts "-- clearing scoped options"
       self.scoped_options = nil
     end
 
@@ -176,6 +177,7 @@ module DataMapper
     #
     # @api semipublic
     def read(query)
+      puts "-- scoped options (at read-time): #{self.scoped_options}"
       begin
         return [] unless query.valid?
         results = if adapter.respond_to?(:read_with_options) && has_scoped_options?
