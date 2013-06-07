@@ -206,7 +206,7 @@ module DataMapper
       begin
         return 0 unless collection.query.valid? && attributes.any?
         if adapter.respond_to?(:update_with_options) && has_scoped_options?
-          adapter.adapter.update_with_options(attributes, collection, self.scoped_options)
+          adapter.update_with_options(attributes, collection, self.scoped_options)
         else
           adapter.update(attributes, collection)
         end
@@ -230,7 +230,7 @@ module DataMapper
       begin
         return 0 unless collection.query.valid?
         if adapter.respond_to?(:delete_with_options) && has_scoped_options?
-          adapter.adapter.delete_with_options(collection, self.scoped_options)
+          adapter.delete_with_options(collection, self.scoped_options)
         else
           adapter.delete(collection)
         end
