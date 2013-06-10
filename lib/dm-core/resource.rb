@@ -17,6 +17,13 @@ module DataMapper
       raise "DataMapper::Resource.descendants is deprecated, use DataMapper::Model.descendants instead (#{caller.first})"
     end
 
+    attr_accessor :extra_options
+
+    def with_options(options)
+      self.extra_options = options
+      self
+    end
+
     # Return if Resource#save should raise an exception on save failures (per-resource)
     #
     # This delegates to model.raise_on_save_failure by default.
