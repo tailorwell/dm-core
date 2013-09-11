@@ -493,24 +493,6 @@ module DataMapper
       records
     end
 
-    # Filter a set of condisions by the records.keys
-    #
-    # @param [Enumerable] records
-    #   The set of records to be filtered
-    #
-    # @return [Enumerable]
-    #   Whats left of the given coditions after the matching
-    #
-    # @api semipublic
-    def existing_conditions(records)
-      if self.conditions
-        attr = records.map{|record| record.keys}.flatten.uniq
-        self.conditions.operands.reject { |c| !attr.includes(c) }
-      else
-        nil
-      end
-    end
-
     # Filter a set of records by the conditions
     #
     # @param [Enumerable] records
@@ -521,7 +503,7 @@ module DataMapper
     #
     # @api semipublic
     def match_records(records)
-      conditions = self.existing_conditions(records)
+      conditions = self.conditions
       records.select { |record| conditions.matches?(record) }
     end
 
