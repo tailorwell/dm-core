@@ -505,7 +505,7 @@ module DataMapper
     def existing_conditions(records)
       if self.conditions
         attr = records.map{|record| record.keys}.flatten.uniq
-        self.conditions.opreands.reject { |c| !attr.includes(c) }
+        self.conditions.operands.reject { |c| !attr.includes(c) }
       else
         nil
       end
