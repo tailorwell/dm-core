@@ -503,7 +503,7 @@ module DataMapper
     #
     # @api semipublic
     def existing_conditions(records)
-      if self.conditions
+      if conditions
         attr = records.map{|record| record.keys}.flatten.uniq
         self.conditions.delete_if { |c| !attr.includes(c) }
       else
