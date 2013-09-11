@@ -521,7 +521,7 @@ module DataMapper
     #
     # @api semipublic
     def match_records(records)
-      conditions = self.existing_conditions(records)
+      conditions = self.conditions #existing_conditions(records)
       records.select { |record| conditions.matches?(record) }
     end
 
