@@ -487,7 +487,7 @@ module DataMapper
     # @api semipublic
     def filter_records(records)
       records = records.uniq           if unique?
-      records = match_records(records) if existing_conditions(records) # conditions
+      records = match_records(records) if conditions
       records = sort_records(records)  if order
       records = limit_records(records) if limit || offset > 0
       records
@@ -506,6 +506,8 @@ module DataMapper
       if self.conditions
         attr = records.map{|record| record.keys}.flatten.uniq
         self.conditions.delete_if { |c| !attr.includes(c) }
+      else
+        nil
       end
     end
 
@@ -519,7 +521,7 @@ module DataMapper
     #
     # @api semipublic
     def match_records(records)
-      conditions = self.conditions
+      conditions = self.existing_conditions(records)
       records.select { |record| conditions.matches?(record) }
     end
 
