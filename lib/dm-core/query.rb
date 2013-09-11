@@ -487,10 +487,24 @@ module DataMapper
     # @api semipublic
     def filter_records(records)
       records = records.uniq           if unique?
-      records = match_records(records) if conditions
+      records = match_records(records) if existing_conditions(records) # conditions
       records = sort_records(records)  if order
       records = limit_records(records) if limit || offset > 0
       records
+    end
+
+    # Filter a set of condisions by the records.keys
+    #
+    # @param [Enumerable] records
+    #   The set of records to be filtered
+    #
+    # @return [Enumerable]
+    #   Whats left of the given coditions after the matching
+    #
+    # @api semipublic
+    def existing_conditions(records)
+      attr = records.map{|record| record.keys}.flatten.uniq
+      self.conditions.delete_if { |c| attr.includes(c) }
     end
 
     # Filter a set of records by the conditions
