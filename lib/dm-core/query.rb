@@ -503,8 +503,10 @@ module DataMapper
     #
     # @api semipublic
     def existing_conditions(records)
-      attr = records.map{|record| record.keys}.flatten.uniq
-      self.conditions.delete_if { |c| attr.includes(c) }
+      if self.conditions
+        attr = records.map{|record| record.keys}.flatten.uniq
+        self.conditions.delete_if { |c| !attr.includes(c) }
+      end
     end
 
     # Filter a set of records by the conditions
