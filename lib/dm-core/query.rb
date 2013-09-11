@@ -503,7 +503,7 @@ module DataMapper
     #
     # @api semipublic
     def existing_conditions(records)
-      if conditions
+      if self.conditions
         attr = records.map{|record| record.keys}.flatten.uniq
         self.conditions.delete_if { |c| !attr.includes(c) }
       else
@@ -521,7 +521,7 @@ module DataMapper
     #
     # @api semipublic
     def match_records(records)
-      conditions = self.conditions #existing_conditions(records)
+      conditions = self.existing_conditions(records)
       records.select { |record| conditions.matches?(record) }
     end
 
