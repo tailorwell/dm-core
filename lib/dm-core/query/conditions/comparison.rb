@@ -463,7 +463,7 @@ module DataMapper
               true
             else
               super
-            ends
+            end
           end
         end
 
