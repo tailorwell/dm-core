@@ -455,10 +455,15 @@ module DataMapper
         #
         # @api semipublic
         def matches?(record)
+
           if relationship? && expected.respond_to?(:query)
             match_relationship?(record)
           else
-            super
+            if !record.has_key?(@subject.field)
+              true
+            else
+              super
+            end
           end
         end
 
